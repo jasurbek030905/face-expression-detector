@@ -1,49 +1,40 @@
 import cv2
+from fer import FER
 
-# Load Haar Cascade face detector
-face_cascade = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-)
+# Initialize emotion detector
+detector = FER(mtcnn=False)
 
-# Opens webcam (0 is the default camera)
-cap = cv2.VideoCapture(0)
-
-if not cap.isOpened():
-    print("Error: Could not open webcam.")
-    exit()
+# Start webcam
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 while True:
     ret, frame = cap.read()
-
     if not ret:
-        print("Error: Could not read frame.")
         break
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Detect emotions
+    results = detector.detect_emotions(frame)
 
-    faces = face_cascade.detectMultiScale(
-        gray,
-        scaleFactor=1.3,
-        minNeighbors=5,
-        minSize=(30, 30)
-    )
+    for result in results:
+        x, y, w, h = result["box"]
+        emotions = result["emotions"]
 
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv2.putText(
-            frame,
-            "Face",
-            (x, y - 10),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (0, 255, 0),
-            2
-        )
+        # Get highest emotion
+        emotion = max(emotions, key=emotions.get)
+        score = emotions[emotion]
 
-    cv2.imshow("Real-Time Face Detection", frame)
+        # Draw rectangle
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
-    # Press q to exit
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+        # Show label
+        label = f"{emotion}: {score:.2f}"
+        cv2.putText(frame, label, (x, y-10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
+
+    cv2.imshow("Emotion Detector", frame)
+
+    key = cv2.waitKey(1) & 0xFF
+    if key == 27 or key == ord('q'):
         break
 
 cap.release()
