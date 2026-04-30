@@ -6,8 +6,8 @@ A full-stack web application that detects human emotions in real time using a we
 
 ## 🚀 Live
 
-- Frontend: https://your-project.vercel.app  
-- Backend: https://your-backend.onrender.com  
+- Frontend: https://vercel.com/jasurbek030905s-projects/face-expression-frontend  
+- Backend: [https://your-backend.onrender.com](https://face-expression-backend-2.onrender.com/)  
 
 ---
 
